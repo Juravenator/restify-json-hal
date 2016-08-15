@@ -102,7 +102,7 @@ var getHAL = (url, routes, routeChains) => {
               halObj.deprecation = piece.deprecated;
               // profile refers to a validation document
               // value must be a URL
-              if (piece.returns[0]) {
+              if (piece.returns && piece.returns[0]) {
                 halObj.profile = piece.returns[0].description;
               }
               // title, used by client UI's to know what to put in a button or something

@@ -4,6 +4,7 @@ var cache = {};
 var urlPrefix = "";
 
 module.exports = (server, options) => {
+  options = options || {};
   urlPrefix = options.prefix || urlPrefix;
 
 

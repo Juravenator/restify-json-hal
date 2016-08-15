@@ -1,0 +1,29 @@
+{
+  "name": "restify-json-hal",
+  "version": "0.0.1",
+  "description": "extends restify with JSON HAL",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Juravenator/restify-json-hal.git"
+  },
+  "keywords": [
+    "restify",
+    "json",
+    "hal",
+    "json-hal",
+    "hateoas"
+  ],
+  "author": "Glenn Dirkx <glenn.dirkx@gmail.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/Juravenator/restify-json-hal/issues"
+  },
+  "homepage": "https://github.com/Juravenator/restify-json-hal#readme",
+  "dependencies": {
+    "parse-comments": "^0.4.3"
+  }
+}

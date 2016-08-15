@@ -75,6 +75,9 @@ var getHAL = (url, routes, routeChains) => {
           }
         }
         halObj.href = urlPrefix + pathPieces.join("/");
+        if (halObj.href == "") {
+          halObj.href = "/";
+        }
 
 
         // get the set of functions associated with this url call

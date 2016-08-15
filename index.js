@@ -129,6 +129,7 @@ var getHAL = (url, routes, routeChains) => {
           }
         }
         halObj.rel = name;
+        halObj.method = method;
         result.push(halObj);
 
 

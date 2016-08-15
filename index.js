@@ -12,7 +12,7 @@ module.exports = (server, options) => {
   // add HAL data to body and then invoke normal json formatter
   var _formatJSON = server.formatters["application/json"];
   var halFormatter = (request, response, body, cb) => {
-    body.links = request.hal;
+    body._links = request.hal;
     return _formatJSON(request, response, body, cb);
   }
   server.acceptable.push('application/hal+json');

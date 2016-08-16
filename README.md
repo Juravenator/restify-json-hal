@@ -178,3 +178,4 @@ Now, calling `/` with header `accept: application/json` will render
 - `_embedded`, somehow
 - figure out how to use `profile` properly
 - CURIE syntax
+- how to document parameters? (probably related to `profile`)

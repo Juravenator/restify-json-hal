@@ -106,7 +106,9 @@ server.use(restifyJSONHAL(server, {
   prefix: "/api",
   // this overrides the formatter for application/json to also
   // include JSON HAL data
-  overrideJSON: true
+  overrideJSON: true,
+  // makes "_links" an object instead of an array
+  makeObjects: true
 }));
 
 server.get('/', (request,response,next) => {
@@ -148,33 +150,29 @@ Now, calling `/` with header `accept: application/json` will render
 ``` json
 {
   "msg": "root",
-  "_links": [
-    {
+  "_links": {
+    "self": {
       "href": "/api",
-      "rel": "self",
       "method": "GET"
     },
-    {
+    "getecho": {
       "href": "/api/echo",
-      "rel": "getecho",
       "method": "GET"
     },
-    {
+    "customName": {
       "href": "/api/hello{?name}",
       "deprecation": true,
       "title": "get-hello",
       "description": "This call does some stuff",
       "templated": true,
-      "rel": "customName",
       "method": "GET"
     }
-  ]
+  }
 }
 ```
 
 ## todo
 
-- Option to switch between array and object mode
 - `_embedded`, somehow
 - figure out how to use `profile` properly
 - CURIE syntax

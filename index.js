@@ -2,10 +2,12 @@ var comments = require('parse-comments');
 
 var cache = {};
 var urlPrefix = "";
+var makeObjects = false;
 
 module.exports = (server, options) => {
   options = options || {};
   urlPrefix = options.prefix || urlPrefix;
+  makeObjects = options.makeObjects || makeObjects;
 
 
   // override json formatter
@@ -41,7 +43,7 @@ module.exports = (server, options) => {
 
 
 var getHAL = (url, routes, routeChains) => {
-  var result = [];
+  var result = makeObjects ? {} : [];
 
   // routes are grouped by method (GET, PUT, POST, DELETE, ...)
   for (var method in routes) {
@@ -128,9 +130,18 @@ var getHAL = (url, routes, routeChains) => {
             }
           }
         }
-        halObj.rel = name;
         halObj.method = method;
-        result.push(halObj);
+
+        if (makeObjects) {
+          // _links is an object
+          result[name] = halObj;
+        } else {
+          // _links is an array
+          halObj.rel = name;
+          result.push(halObj);
+        }
+
+
 
 
       }

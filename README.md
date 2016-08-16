@@ -1,7 +1,9 @@
 restify-json-hal
 ================
 
-Restify plugin that brings [JSON HAL](https://tools.ietf.org/html/draft-kelly-json-hal-08) support.
+Extends Restify with the `application/hal+json` formatter following the [JSON HAL](https://tools.ietf.org/html/draft-kelly-json-hal-08) and [URI Templates](https://tools.ietf.org/html/rfc6570) spec.
+
+This way you easily add the basics of HATEOAS to your API and brings it that much closer to the [Glory of REST](http://martinfowler.com/articles/richardsonMaturityModel.html).
 
 ## howto
 ``` javascript
@@ -32,7 +34,9 @@ server.listen(8080, function () {
 });
 ```
 
-A call to `/` renders, remember to have the `accept: application/hal+json` header.
+A call to `/` renders:
+
+(remember to have the `accept: application/hal+json` header)
 
 ``` json
 {
@@ -167,3 +171,10 @@ Now, calling `/` with header `accept: application/json` will render
   ]
 }
 ```
+
+## todo
+
+- Option to switch between array and object mode
+- `_embedded`, somehow
+- figure out how to use `profile` properly
+- CURIE syntax

@@ -1,6 +1,4 @@
 module.exports = (pathPieces, urlPieces) => {
-  // console.log("urlMatches?");
-  // console.log(pathPieces, urlPieces);
   if (pathPieces.length < urlPieces.length) {
     // this path is shorter than our url -> no match
     return false;

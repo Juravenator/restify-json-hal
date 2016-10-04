@@ -1,11 +1,11 @@
 var parseUrlDocs = require('./parseUrlDocs.js');
-var removeLastIfEmpty = require('./removeLastIfEmpty.js');
+var cleanRoutePieces = require('./cleanRoutePieces.js');
 var urlMatches = require('./urlMatches.js');
 
 module.exports = (url, routes, routeChains, makeObjects, urlPrefix) => {
   var result = makeObjects ? {} : [];
   var matches = [];
-  var urlPieces = removeLastIfEmpty(url.split("/"));
+  var urlPieces = cleanRoutePieces(url.split("/"));
 
   // routes are grouped by method (GET, PUT, POST, DELETE, ...)
   for (var method in routes) {
@@ -17,7 +17,7 @@ module.exports = (url, routes, routeChains, makeObjects, urlPrefix) => {
 
       // route might contain parameters
       // check piece by piece to deal with url parameters
-      var pathPieces = removeLastIfEmpty(path.split("/"));
+      var pathPieces = cleanRoutePieces(path.split("/"));
 
       // check if this path should be added to the HAL response of this request
       if ( urlMatches(pathPieces, urlPieces) ) {
@@ -40,7 +40,7 @@ module.exports = (url, routes, routeChains, makeObjects, urlPrefix) => {
     var match = matches[i];
     // redo match pieces
     // previously we replaced variables with the values to generate HAL links later on
-    match.realPathPieces = removeLastIfEmpty(match.route.spec.path.split("/"));
+    match.realPathPieces = cleanRoutePieces(match.route.spec.path.split("/"));
     if (match.realPathPieces.length < l) {
       l = match.realPathPieces.length;
     }

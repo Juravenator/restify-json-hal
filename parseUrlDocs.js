@@ -31,7 +31,7 @@ module.exports = ({chain, halObj, name}) => {
         halObj.description = piece.description;
         // JSON-HAL doesn't specify a way to document parameters
         // URI Templates do though
-        if (piece.params) {
+        if (piece.params && halObj.href && halObj.href.indexOf("?") == -1) {
           halObj.templated = true;
 
           halObj.href += "{?";

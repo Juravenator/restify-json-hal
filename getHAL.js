@@ -2,8 +2,11 @@ var parseUrlDocs = require('./parseUrlDocs.js');
 var cleanRoutePieces = require('./cleanRoutePieces.js');
 var urlMatches = require('./urlMatches.js');
 
-module.exports = (url, routes, routeChains, makeObjects, urlPrefix) => {
-  var result = makeObjects ? {} : [];
+module.exports = (server, options) => (url) => {
+  var routes = server.router.routes;
+  var routeChains = server.routes;
+  var attachHALObj = require('./attachHALObj.js')(options);
+  var result = options.makeObjects ? {} : [];
   var matches = [];
   var urlPieces = cleanRoutePieces(url.split("/"));
 
@@ -95,7 +98,7 @@ module.exports = (url, routes, routeChains, makeObjects, urlPrefix) => {
         halObj.templated = true;
       }
     }
-    halObj.href = urlPrefix + match.pathPieces.join("/");
+    halObj.href = options.prefix + match.pathPieces.join("/");
     if (halObj.href == "") {
       halObj.href = "/";
     }
@@ -109,15 +112,7 @@ module.exports = (url, routes, routeChains, makeObjects, urlPrefix) => {
 
     halObj.method = match.method;
 
-    if (makeObjects) {
-      // _links is an object
-      name = halObj.rel;
-      delete halObj.rel;
-      result[name] = halObj;
-    } else {
-      // _links is an array
-      result.push(halObj);
-    }
+    attachHALObj(halObj, result);
   }
   return result;
 }

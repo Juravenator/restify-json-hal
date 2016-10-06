@@ -171,6 +171,90 @@ Now, calling `/` with header `accept: application/json` will render
 }
 ```
 
+## Custom links
+restify-json-hal exposes the addLink function that allows you to link to another resource that would normally not be considered related.
+
+An example:
+
+```javascript
+server.get('/books/:bookname', (request,response,next) => {
+  /**
+   * HAL: Gets book and author
+   * @name getauthor
+   */
+  var author = "alan-watts";
+  response.addLink("get", `/authors/${author}`);
+  response.send({
+    title: request.params.bookname,
+    author: author
+  });
+  return next();
+});
+
+server.get('/authors/:authorname', (request, response, next) => {
+  /**
+   * HAL: Gets author and published books
+   * @name getauthor
+   */
+  var books = ["the-way-of-zen"];
+  for (var i = 0; i < books.length; i++) {
+    response.addLink("get", `/books/${books[i]}`, books[i]);
+  }
+  response.send({
+    author: request.params.authorname,
+    books: books
+  });
+});
+```
+
+A call to `/books/the-way-of-zen` will render:
+
+```json
+{
+  "title": "the-way-of-zen",
+  "author": "alan-watts",
+  "_links": [
+    {
+      "href": "/books/the-way-of-zen",
+      "rel": "self",
+      "description": "Gets book and author",
+      "method": "GET"
+    },
+    {
+      "rel": "getauthor",
+      "method": "GET",
+      "description": "Gets author and published books",
+      "href": "/authors/alan-watts"
+    }
+  ]
+}
+```
+
+A call to `/authors/alan-watts` will render:
+
+```json
+{
+  "author": "alan-watts",
+  "books": [
+    "the-way-of-zen"
+  ],
+  "_links": [
+    {
+      "href": "/authors/alan-watts",
+      "rel": "self",
+      "description": "Gets author and published books",
+      "method": "GET"
+    },
+    {
+      "rel": "the-way-of-zen",
+      "method": "GET",
+      "description": "Gets book and author",
+      "href": "/books/the-way-of-zen"
+    }
+  ]
+}
+```
+
 ## todo
 
 - `_embedded`, somehow

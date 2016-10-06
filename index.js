@@ -6,6 +6,8 @@ module.exports = (server, options) => {
   options.prefix = options.prefix || "";
   options.makeObjects = options.makeObjects || false;
 
+  var addLink = require('./addLink.js')(server, options);
+
   // override json formatter
   // add HAL data to body and then invoke normal json formatter
   var _formatJSON = server.formatters["application/json"];
@@ -40,6 +42,7 @@ module.exports = (server, options) => {
     } else {
       request.hal = halCache[url].slice(0);
     }
+    response.addLink = addLink(request.hal, response);
     next();
   }
 }

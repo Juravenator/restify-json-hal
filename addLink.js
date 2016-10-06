@@ -37,7 +37,13 @@ module.exports = (server, options) => {
       cache[method] = cache[method] || {};
 
       if (!cache[method][urlWithoutQuery]) {
-        cache[method][urlWithoutQuery] = findLink(method, urlWithoutQuery)
+        var cacheEntry = findLink(method, urlWithoutQuery);
+        if (cacheEntry) {
+          cache[method][urlWithoutQuery] = cacheEntry;
+        } else {
+          console.error(`addLink.js: no match was found for ${method} ${urlWithoutQuery}`);
+          return;
+        }
       }
 
       var result = cache[method][urlWithoutQuery];

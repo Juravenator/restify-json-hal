@@ -35,7 +35,7 @@ module.exports = (server, options) => (url) => {
   }
 
   /*****************************************************************************
-  * Make an array that will say wether or not the url piece needs to be static *
+  * Make an array that will say whether or not the url piece needs to be static *
   *****************************************************************************/
   var l = 9999;
   var isPieceStatic = [];

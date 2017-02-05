@@ -1,6 +1,6 @@
 {
   "name": "restify-json-hal",
-  "version": "0.1.2",
+  "version": "0.1.1",
   "description": "extends restify with JSON HAL",
   "main": "index.js",
   "scripts": {

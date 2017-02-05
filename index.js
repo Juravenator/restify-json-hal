@@ -1,11 +1,11 @@
 var halCache = {};
 
 module.exports = (server, options) => {
-  var getHAL = require('./getHAL.js')(server, options);
   options = options || {};
   options.prefix = options.prefix || "";
   options.makeObjects = options.makeObjects || false;
 
+  var getHAL = require('./getHAL.js')(server, options);
   var addLink = require('./addLink.js')(server, options);
 
   // override json formatter

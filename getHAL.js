@@ -18,18 +18,21 @@ module.exports = (server, options) => (url) => {
       // path as it was defined by the developer in server.get(<path>)
       var path = route.spec.path;
 
-      // route might contain parameters
-      // check piece by piece to deal with url parameters
-      var pathPieces = cleanRoutePieces(path.split("/"));
+        // Avoid trying to match paths that are RegExps
+      if (!(path instanceof RegExp)) {
+          // route might contain parameters
+          // check piece by piece to deal with url parameters
+          var pathPieces = cleanRoutePieces(path.split("/"));
 
-      // check if this path should be added to the HAL response of this request
-      if ( urlMatches(pathPieces, urlPieces) ) {
-        matches.push({
-          pathPieces: pathPieces,
-          route: route,
-          method: method
-        });
+          // check if this path should be added to the HAL response of this request
+          if ( urlMatches(pathPieces, urlPieces) ) {
+              matches.push({
+                  pathPieces: pathPieces,
+                  route: route,
+                  method: method
+              });
 
+          }
       }
     }
   }

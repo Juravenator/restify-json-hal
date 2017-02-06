@@ -6,7 +6,7 @@ module.exports = (server, options) => {
   options.makeObjects = options.makeObjects || false;
 
   var getHAL = require('./getHAL.js')(server, options);
-  var addLink = require('./addLink.js')(server, options);
+  var makeAddLink = require('./addLink.js')(server, options);
 
   // override json formatter
   // add HAL data to body and then invoke normal json formatter
@@ -34,15 +34,11 @@ module.exports = (server, options) => {
     // the developer can add custom links, and if we pass this object by reference
     // this will (accidentally) get into the cache
     if (options.makeObjects) {
-      request.hal = {};
-      var cache = halCache[url];
-      for (var name in cache) {
-        request.hal[name] = cache[name];
-      }
+      Object.assign(request.hal, halCache[url]);
     } else {
       request.hal = halCache[url].slice(0);
     }
-    response.addLink = addLink(request.hal, response);
+    response.addLink = makeAddLink(request.hal, response);
     next();
   }
 }

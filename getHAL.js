@@ -18,21 +18,59 @@ module.exports = (server, options) => (url) => {
       // path as it was defined by the developer in server.get(<path>)
       var path = route.spec.path;
 
-        // Avoid trying to match paths that are RegExps
-      if (!(path instanceof RegExp)) {
-          // route might contain parameters
-          // check piece by piece to deal with url parameters
-          var pathPieces = cleanRoutePieces(path.split("/"));
-
-          // check if this path should be added to the HAL response of this request
-          if ( urlMatches(pathPieces, urlPieces) ) {
-              matches.push({
-                  pathPieces: pathPieces,
-                  route: route,
-                  method: method
-              });
-
+      // route is a regular expression
+      if (path instanceof RegExp) {
+        // to be a related resouce, it must be one level up
+        // e.g. current path is '/' and resource is '/example'
+        if (url[url.length-1] != "/") {
+          var url = url + "/";
+        }
+        // we split the regex by the slash "/" characters it matches
+        var regexPieces = path.toString().slice(1,-1).split("\\/").filter( piece => piece != "");
+        // if there are no slashes, it might be a catch all regex, test for it
+        if (regexPieces.length == 1) {
+          if (path.exec(url+"/testifcatchallregex")) {
+            matches.push({
+              pathPieces: regexPieces,
+              isRegex: true,
+              route: route,
+              method: method
+            });
           }
+        }
+        // reassemble all but the last piece, it should match our current url
+        // (or part of it, the tail can be a catch all)
+        else {
+          var prefixregex = new RegExp(regexPieces.slice(0,-1).join("\\/")+"/");
+          var matched = prefixregex.exec(url);
+          if (matched) {
+            var rest = url.substring(matched[0].length);
+            // if there is a rest, it must be matched by the last regexPiece
+            if (!rest || ( rest && new RegExp(regexPieces[regexPieces.length-1]).exec(rest) )) {
+              matches.push({
+                pathPieces: regexPieces,
+                isRegex: true,
+                route: route,
+                method: method
+              });
+            }
+          }
+        }
+      }
+      // route is a string
+      else {
+        // route might contain parameters
+        // check piece by piece to deal with url parameters
+        var pathPieces = cleanRoutePieces(path.split("/"));
+
+        // check if this path should be added to the HAL response of this request
+        if ( urlMatches(pathPieces, urlPieces) ) {
+          matches.push({
+            pathPieces: pathPieces,
+            route: route,
+            method: method
+          });
+        }
       }
     }
   }
@@ -40,52 +78,36 @@ module.exports = (server, options) => (url) => {
   /*****************************************************************************
   * Make an array that will say whether or not the url piece needs to be static *
   *****************************************************************************/
-  var l = 9999;
-  var isPieceStatic = [];
-  for (var i = 0; i < matches.length; i++) {
-    var match = matches[i];
-    // redo match pieces
-    // previously we replaced variables with the values to generate HAL links later on
+  // the smallest match is the 'self' match
+  // only the path pieces from 0 - self.length need to be evaluated for variables
+  var stringMatches = matches.filter( match => !match.isRegex);
+  var smallestPiecesLength = stringMatches.reduce( (result, match) => {
     match.realPathPieces = cleanRoutePieces(match.route.spec.path.split("/"));
-    if (match.realPathPieces.length < l) {
-      l = match.realPathPieces.length;
-    }
-    for (var j = 0; j < l; j++) {
-      var piece = match.realPathPieces[j];
-      var isStatic = piece[0] != ":";
-      if (isPieceStatic[j] == undefined || isPieceStatic[j] == false) {
-        isPieceStatic[j] = isStatic;
-      }
-    }
-  }
+    var l = match.realPathPieces.length;
+    return l < result ? l : result;
+  }, 9999);
 
   /*********************************************************************************
   * Now filter using the previously made list                                      *
   * Any match with a variable on a place that should be static is a false positive *
   *********************************************************************************/
-  var filtered_matches = [];
-  for (var i = 0; i < matches.length; i++) {
-    var match = matches[i];
-    var ok = true;
-    for (var j = 0; j < l; j++) {
-      var piece = match.realPathPieces[j];
-      var isStatic = piece[0] != ":";
-      if (isPieceStatic[j] != isStatic) {
-        ok = false;
+  matches = matches.filter( match => {
+    if (!match.isRegex) {
+      for (var i = 0; i < smallestPiecesLength; i++) {
+        var piece = match.realPathPieces[i];
+        let isStatic = piece[0] != ":";
+        if (!isStatic) {
+          return false;
+        }
       }
     }
-    if (ok) {
-      filtered_matches.push(match);
-    }
-  }
-  matches = filtered_matches;
+    return true;
+  });
 
   /***************************************
   * Render json-HAL entry for each match *
   ***************************************/
-  for (var i = 0; i < matches.length; i++) {
-    var match = matches[i];
-
+  matches.forEach( match => {
     var halObj = {}
 
     var name;
@@ -101,7 +123,13 @@ module.exports = (server, options) => (url) => {
         halObj.templated = true;
       }
     }
-    halObj.href = options.prefix + match.pathPieces.join("/");
+    if (match.isRegex) {
+      halObj.href = options.prefix + new RegExp(match.pathPieces.slice(0,-1).join("/")).exec(url)[0] + "/" + match.pathPieces[match.pathPieces.length-1];
+      // halObj.regex = match.pathPieces.join("/");
+    }
+    else {
+      halObj.href = options.prefix + match.pathPieces.join("/");
+    }
     if (halObj.href == "") {
       halObj.href = "/";
     }
@@ -116,6 +144,6 @@ module.exports = (server, options) => (url) => {
     halObj.method = match.method;
 
     attachHALObj(halObj, result);
-  }
+  });
   return result;
 }

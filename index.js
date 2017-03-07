@@ -1,6 +1,6 @@
 var halCache = {};
 
-module.exports = (server, options) => {
+module.exports = function restifyJSONHalInit(server, options) {
   options = options || {};
   options.prefix = options.prefix || "";
   options.makeObjects = options.makeObjects || false;
@@ -11,7 +11,7 @@ module.exports = (server, options) => {
   // override json formatter
   // add HAL data to body and then invoke normal json formatter
   var _formatJSON = server.formatters["application/json"];
-  var halFormatter = (request, response, body, cb) => {
+  var halFormatter = function restifyJSONHalFormatter(request, response, body, cb) {
     body._links = request.hal;
     return _formatJSON(request, response, body, cb);
   }
@@ -23,7 +23,7 @@ module.exports = (server, options) => {
 
   // fires on every request
   // renders the HAL data and puts it in cache if not present already
-  return (request, response, next) => {
+  return function restifyJSONHal(request, response, next) {
     var method = request.method;
     var url = request.url;
 

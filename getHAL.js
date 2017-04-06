@@ -2,7 +2,7 @@ var parseUrlDocs = require('./parseUrlDocs.js');
 var cleanRoutePieces = require('./cleanRoutePieces.js');
 var urlMatches = require('./urlMatches.js');
 
-module.exports = (server, options) => (url) => {
+module.exports = (server, options) => function getHAL(url) {
   var routes = server.router.routes;
   var routeChains = server.routes;
   var attachHALObj = require('./attachHALObj.js')(options);
@@ -81,7 +81,7 @@ module.exports = (server, options) => (url) => {
   // the smallest match is the 'self' match
   // only the path pieces from 0 - self.length need to be evaluated for variables
   var stringMatches = matches.filter( match => !match.isRegex);
-  var smallestPiecesLength = stringMatches.reduce( (result, match) => {
+  var smallestPiecesLength = stringMatches.reduce( function smallestPiecesReducer(result, match) {
     match.realPathPieces = cleanRoutePieces(match.route.spec.path.split("/"));
     var l = match.realPathPieces.length;
     return l < result ? l : result;
@@ -91,7 +91,7 @@ module.exports = (server, options) => (url) => {
   * Now filter using the previously made list                                      *
   * Any match with a variable on a place that should be static is a false positive *
   *********************************************************************************/
-  matches = matches.filter( match => {
+  matches = matches.filter( function matchFilter(match) {
     if (!match.isRegex) {
       for (var i = 0; i < smallestPiecesLength; i++) {
         var piece = match.realPathPieces[i];
@@ -107,7 +107,7 @@ module.exports = (server, options) => (url) => {
   /***************************************
   * Render json-HAL entry for each match *
   ***************************************/
-  matches.forEach( match => {
+  matches.forEach( function matchLoop(match) {
     var halObj = {}
 
     var name;

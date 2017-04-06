@@ -1,6 +1,6 @@
 var comments = require('parse-comments');
 
-module.exports = ({chain, halObj, name}) => {
+module.exports = function parseUrlDocs({chain, halObj, name}) {
   // check each of the functions in the url chain for HAL documentation
   for (var z = 0; z < chain.length; z++) {
 

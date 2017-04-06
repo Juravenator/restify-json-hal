@@ -1,4 +1,4 @@
-module.exports = options => (halObj, container) => {
+module.exports = options => function attachHALObj(halObj, container) {
   if (options.makeObjects) {
     // _links is an object
     var name = halObj.rel;
